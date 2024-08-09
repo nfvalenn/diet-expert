@@ -1,22 +1,26 @@
 import axios from 'axios';
 
+// Create an Axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api', // Ganti dengan URL backend Anda
+  baseURL: 'http://localhost:5001/api', // Replace with your actual base URL
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Contoh endpoint untuk login
-api.post('/login', async (credentials) => {
-  const response = await axios.post('/login', credentials);
-  return response.data;
-});
+// Automatically set the Authorization header if the token exists in localStorage
+const token = localStorage.getItem('authToken');
+if (token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
-// Contoh endpoint untuk register
-api.post('/register', async (credentials) => {
-  const response = await axios.post('/register', credentials);
-  return response.data;
+// Alternatively, you can use an Axios request interceptor
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default api;

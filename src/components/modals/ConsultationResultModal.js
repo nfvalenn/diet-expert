@@ -1,33 +1,59 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState } from 'react';
+import Modal from 'react-modal';
 
-const ConsultationResultsModal = ({ isOpen, onRequestClose, results }) => {
-  if (!isOpen) return null;
+Modal.setAppElement('#root');  // Ensure that the modal is accessible
 
-  return ReactDOM.createPortal(
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md overflow-y-auto max-h-screen">
-        <h2 className="text-2xl font-bold mb-4">Consultation Results</h2>
-        <div className="space-y-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">IMT</label>
-            <p>{results.imt}</p>
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">IMT Condition</label>
-            <p>{results.imtCondition}</p>
-          </div>
-          {/* Add more fields as needed */}
-        </div>
-        <div className="flex justify-end">
-          <button onClick={onRequestClose} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
+const ConsultationResultModal = ({ isOpen, onClose, consultationData }) => {
+    const [showRecommendations, setShowRecommendations] = useState(false);
+
+    // Debugging log
+    console.log('Consultation Data:', consultationData);
+
+    if (!consultationData) return null;
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={onClose}
+            contentLabel="Hasil Konsultasi"
+            className="modal"
+            overlayClassName="overlay"
+            shouldCloseOnOverlayClick={true} // Allows closing the modal by clicking outside
+            shouldCloseOnEsc={true} // Allows closing the modal with the ESC key
+        >
+            <h2 className="text-xl font-bold mb-4">Hasil Konsultasi</h2>
+            <div className="mb-4">
+                <h3 className="text-lg font-semibold">Hasil</h3>
+                <p>{consultationData.result || 'Data hasil tidak tersedia.'}</p>
+            </div>
+            <button
+                onClick={() => setShowRecommendations(!showRecommendations)}
+                className="bg-blue-500 text-white py-2 px-4 rounded mb-4"
+            >
+                {showRecommendations ? 'Sembunyikan Rekomendasi Makanan' : 'Lihat Rekomendasi Makanan'}
+            </button>
+            {showRecommendations && (
+                <div className="mb-4">
+                    <h3 className="text-lg font-semibold">Rekomendasi Makanan</h3>
+                    {Array.isArray(consultationData.foodRecommendations) && consultationData.foodRecommendations.length > 0 ? (
+                        <ul>
+                            {consultationData.foodRecommendations.map((food, index) => (
+                                <li key={index}>{food.name}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>Rekomendasi makanan tidak tersedia.</p>
+                    )}
+                </div>
+            )}
+            <button
+                onClick={onClose}
+                className="bg-gray-500 text-white py-2 px-4 rounded"
+            >
+                Tutup
+            </button>
+        </Modal>
+    );
 };
 
-export default ConsultationResultsModal;
+export default ConsultationResultModal;

@@ -4,7 +4,11 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      maxHeight: {
+        'scrollable': 'calc(100vh - 80px)',
+      },
+    },
   },
   plugins: [],
 }

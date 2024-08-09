@@ -1,261 +1,279 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import axios from 'axios';
-import ConsultationResultsModal from './ConsultationResultModal';
+import Modal from 'react-modal';
+import api from '../../services/api'; // Sesuaikan path sesuai kebutuhan
+import FoodRecommendationPage from '../../pages/FoodRecomendationPage';
 
-const ConsultationFormModal = ({ isOpen, onRequestClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    weight: '',
-    height: '',
-    age: '',
-    gender: '',
-    imt: '',
-    imtCondition: '',
-    activityLevelId: '',
-    bloodSugarId: '',
-    hba1cId: '',
-    stressLevelId: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [conditions, setConditions] = useState({});
-  const [results, setResults] = useState(null); // State to hold the results
-  const [isResultsModalOpen, setIsResultsModalOpen] = useState(false); // State to control results modal
+// Set app element untuk aksesibilitas
+Modal.setAppElement('#root'); // Pastikan ini sesuai dengan ID root elemen Anda
+
+const ConsultationForm = ({ isOpen, onRequestClose }) => {
+  const [af_condition_options, setAFConditionOptions] = useState([]);
+  const [kg_condition_options, setKGConditionOptions] = useState([]);
+  const [ts_condition_options, setTSConditionOptions] = useState([]);
+  const [h_condition_options, setHConditionOptions] = useState([]);
+
+  const [af_condition_id, setAFConditionId] = useState('');
+  const [kg_condition_id, setKGConditionId] = useState('');
+  const [ts_condition_id, setTSConditionId] = useState('');
+  const [h_condition_id, setHConditionId] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const [consultationResult, setConsultationResult] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
 
   useEffect(() => {
     const fetchConditions = async () => {
       try {
-        const [activityLevels, bloodSugars, hba1cs, stressLevels] = await Promise.all([
-          axios.get('/api/conditions/activity-levels'),
-          axios.get('/api/conditions/blood-sugars'),
-          axios.get('/api/conditions/hba1cs'),
-          axios.get('/api/conditions/stress-levels'),
+        const [
+          af_conditions_response,
+          kg_conditions_response,
+          ts_conditions_response,
+          h_conditions_response,
+        ] = await Promise.all([
+          api.get('/afconditions'),
+          api.get('/kgconditions'),
+          api.get('/tsconditions'),
+          api.get('/hconditions'),
         ]);
-        setConditions({
-          activityLevels: activityLevels.data,
-          bloodSugars: bloodSugars.data,
-          hba1cs: hba1cs.data,
-          stressLevels: stressLevels.data,
-        });
+
+        setAFConditionOptions(af_conditions_response.data);
+        setKGConditionOptions(kg_conditions_response.data);
+        setTSConditionOptions(ts_conditions_response.data);
+        setHConditionOptions(h_conditions_response.data);
       } catch (error) {
         console.error('Error fetching conditions:', error);
       }
     };
 
     fetchConditions();
-  }, []); // Empty dependency array to run only once when component mounts
+  }, []);
 
-  if (!isOpen) return null;
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
+  const validateInputs = () => {
+    if (
+      !weight ||
+      !height ||
+      !age ||
+      !gender ||
+      !af_condition_id ||
+      !kg_condition_id ||
+      !h_condition_id ||
+      !ts_condition_id
+    ) {
+      alert('Silakan lengkapi semua field.');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
+    if (!validateInputs()) {
+      return;
+    }
+
+    const consultation_data = {
+      weight: parseFloat(weight),
+      height: parseFloat(height),
+      age: parseInt(age),
+      gender: gender,
+      activityLevelId: af_condition_id,
+      bloodSugarId: kg_condition_id,
+      hba1cId: h_condition_id,
+      stressLevelId: ts_condition_id,
+      notes: notes,
+      userId: 1, // Ganti dengan ID pengguna yang sesuai jika perlu
+    };
+
+    console.log('Data Konsultasi:', consultation_data);
 
     try {
-      const response = await axios.post('/api/consultation', {
-        weight: formData.weight,
-        height: formData.height,
-        age: formData.age,
-        gender: formData.gender,
-        activityLevelId: formData.activityLevelId,
-        bloodSugarId: formData.bloodSugarId,
-        hba1cId: formData.hba1cId,
-        stressLevelId: formData.stressLevelId
-      });
-
-      const { imt, imtCondition } = response.data;
-
-      setFormData((prevData) => ({
-        ...prevData,
-        imt: imt,
-        imtCondition: imtCondition || 'Not Defined' // Set imtCondition from the response
-      }));
-
-      setResults({ imt, imtCondition }); // Save the results
-      setIsResultsModalOpen(true); // Open the results modal
+      const response = await api.post('/consultations', consultation_data);
+      console.log('Respons API Konsultasi:', response.data); // Log respons untuk debugging
+      setConsultationResult(response.data.result);
+      setShowResultModal(true);  // Menampilkan modal hasil
+      onRequestClose(); // Tutup modal form konsultasi
     } catch (error) {
-      console.error('Error during consultation submission:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error menambahkan konsultasi:', error.response ? error.response.data : error.message);
+      alert('Gagal menambahkan konsultasi. Silakan coba lagi.');
     }
   };
 
-  const handleResultsClose = () => {
-    setIsResultsModalOpen(false);
-    onRequestClose();
-  };
+  return (
+    <div>
+      <Modal
+        isOpen={isOpen}
+        onRequestClose={onRequestClose}
+        contentLabel="Tambah Konsultasi"
+        className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        <div className="bg-white p-6 rounded shadow-lg max-w-md w-full h-full max-h-screen overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">Tambah Konsultasi Baru</h2>
 
-  return ReactDOM.createPortal(
-    <>
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md overflow-y-auto max-h-screen">
-          <h2 className="text-2xl font-bold mb-4">Consultation Form</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="weight" className="block text-sm font-medium text-gray-700">Weight (kg)</label>
+              <label htmlFor="weight" className="block mb-2">Berat Badan (kg)</label>
               <input
-                type="number"
                 id="weight"
-                name="weight"
-                value={formData.weight}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                step="0.1"
+                min="0"
+                className="p-2 border border-gray-300 rounded w-full"
                 required
               />
             </div>
+
             <div className="mb-4">
-              <label htmlFor="height" className="block text-sm font-medium text-gray-700">Height (cm)</label>
+              <label htmlFor="height" className="block mb-2">Tinggi Badan (cm)</label>
               <input
-                type="number"
                 id="height"
-                name="height"
-                value={formData.height}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="age" className="block text-sm font-medium text-gray-700">Age</label>
-              <input
                 type="number"
-                id="age"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                step="0.1"
+                min="0"
+                className="p-2 border border-gray-300 rounded w-full"
                 required
               />
             </div>
+
             <div className="mb-4">
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
+              <label htmlFor="age" className="block mb-2">Umur</label>
+              <input
+                id="age"
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                min="0"
+                className="p-2 border border-gray-300 rounded w-full"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="gender" className="block mb-2">Jenis Kelamin</label>
               <select
                 id="gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="p-2 border border-gray-300 rounded w-full"
                 required
               >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
+                <option value="">Pilih Jenis Kelamin</option>
+                <option value="Male">Pria</option>
+                <option value="Female">Wanita</option>
               </select>
             </div>
+
             <div className="mb-4">
-              <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700">Activity Level</label>
+              <label htmlFor="af_condition" className="block mb-2">Status Aktivitas</label>
               <select
-                id="activityLevelId"
-                name="activityLevelId"
-                value={formData.activityLevelId}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                required
+                id="af_condition"
+                value={af_condition_id}
+                onChange={(e) => setAFConditionId(e.target.value)}
+                className="p-2 border border-gray-300 rounded w-full"
               >
-                <option value="">Select Activity Level</option>
-                {conditions.activityLevels && conditions.activityLevels.map((condition) => (
-                  <option key={condition.id} value={condition.id}>{condition.name}</option>
+                <option value="">Pilih Status Aktivitas</option>
+                {af_condition_options.map((condition) => (
+                  <option key={condition.id} value={condition.id}>{condition.category}</option>
                 ))}
               </select>
             </div>
+
             <div className="mb-4">
-              <label htmlFor="bloodSugarId" className="block text-sm font-medium text-gray-700">Blood Sugar Level</label>
+              <label htmlFor="kg_condition" className="block mb-2">Kadar Gula Darah</label>
               <select
-                id="bloodSugarId"
-                name="bloodSugarId"
-                value={formData.bloodSugarId}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                required
+                id="kg_condition"
+                value={kg_condition_id}
+                onChange={(e) => setKGConditionId(e.target.value)}
+                className="p-2 border border-gray-300 rounded w-full"
               >
-                <option value="">Select Blood Sugar Level</option>
-                {conditions.bloodSugars && conditions.bloodSugars.map((condition) => (
-                  <option key={condition.id} value={condition.id}>{condition.name}</option>
+                <option value="">Pilih Kadar Gula Darah</option>
+                {kg_condition_options.map((condition) => (
+                  <option key={condition.id} value={condition.id}>{condition.category}</option>
                 ))}
               </select>
             </div>
+
             <div className="mb-4">
-              <label htmlFor="hba1cId" className="block text-sm font-medium text-gray-700">HbA1c Level</label>
+              <label htmlFor="h_condition" className="block mb-2">HbA1c</label>
               <select
-                id="hba1cId"
-                name="hba1cId"
-                value={formData.hba1cId}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                required
+                id="h_condition"
+                value={h_condition_id}
+                onChange={(e) => setHConditionId(e.target.value)}
+                className="p-2 border border-gray-300 rounded w-full"
               >
-                <option value="">Select HbA1c Level</option>
-                {conditions.hba1cs && conditions.hba1cs.map((condition) => (
-                  <option key={condition.id} value={condition.id}>{condition.name}</option>
+                <option value="">Pilih HbA1c</option>
+                {h_condition_options.map((condition) => (
+                  <option key={condition.id} value={condition.id}>{condition.category}</option>
                 ))}
               </select>
             </div>
+
             <div className="mb-4">
-              <label htmlFor="stressLevelId" className="block text-sm font-medium text-gray-700">Stress Level</label>
+              <label htmlFor="ts_condition" className="block mb-2">Tingkat Stres</label>
               <select
-                id="stressLevelId"
-                name="stressLevelId"
-                value={formData.stressLevelId}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                required
+                id="ts_condition"
+                value={ts_condition_id}
+                onChange={(e) => setTSConditionId(e.target.value)}
+                className="p-2 border border-gray-300 rounded w-full"
               >
-                <option value="">Select Stress Level</option>
-                {conditions.stressLevels && conditions.stressLevels.map((condition) => (
-                  <option key={condition.id} value={condition.id}>{condition.name}</option>
+                <option value="">Pilih Tingkat Stres</option>
+                {ts_condition_options.map((condition) => (
+                  <option key={condition.id} value={condition.id}>{condition.category}</option>
                 ))}
               </select>
             </div>
-            <div className="mb-4">
-              <label htmlFor="imt" className="block text-sm font-medium text-gray-700">IMT</label>
-              <input
-                type="text"
-                id="imt"
-                name="imt"
-                value={formData.imt}
-                readOnly
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="imtCondition" className="block text-sm font-medium text-gray-700">IMT Condition</label>
-              <input
-                type="text"
-                id="imtCondition"
-                name="imtCondition"
-                value={formData.imtCondition}
-                readOnly
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
+
             <div className="flex justify-end">
-              <button type="button" onClick={onRequestClose} className="bg-gray-500 text-white px-4 py-2 rounded mr-2">
-                Cancel
-              </button>
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded" disabled={loading}>
-                {loading ? 'Processing...' : 'Submit'}
+              <button
+                type="submit"
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                Kirim
               </button>
             </div>
           </form>
         </div>
-      </div>
-      {isResultsModalOpen && (
-        <ConsultationResultsModal 
-          isOpen={isResultsModalOpen} 
-          onRequestClose={handleResultsClose} 
-          results={results}
-        />
-      )}
-    </>,
-    document.body
+      </Modal>
+
+      <Modal
+        isOpen={showResultModal}
+        onRequestClose={() => setShowResultModal(false)}
+        contentLabel="Hasil Konsultasi"
+        className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        <div className="bg-white p-6 rounded shadow-lg max-w-md w-full h-full max-h-screen overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">Hasil Konsultasi</h2>
+          {consultationResult ? (
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Rekomendasi Makanan:</h3>
+              <FoodRecommendationPage recommendations={consultationResult} />
+              {/* Atau tampilkan detail lain dari hasil konsultasi sesuai kebutuhan */}
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )}
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setShowResultModal(false)}
+              className="bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 };
 
-export default ConsultationFormModal;
+export default ConsultationForm;

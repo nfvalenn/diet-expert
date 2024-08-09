@@ -20,7 +20,7 @@ const HomePage = () => {
           className="w-1/2 h-auto object-cover transform scale-75"
         />
         <div className="flex-1 flex items-center justify-center">
-          <div className='bg-white p-6 rounded-lg shadow-lg border'>
+          <div className="bg-white p-6 rounded-lg shadow-lg border">
             <div className="flex flex-col items-center">
               <h2 className="text-2xl font-bold">Sistem Pakar Pola Makan</h2>
               <p className="mb-6 text-lg text-center">Beritahu kami kondisi anda</p>

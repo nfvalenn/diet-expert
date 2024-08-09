@@ -1,3 +1,4 @@
+// src/components/modals/Footer.js
 import React from 'react';
 
 function Footer() {

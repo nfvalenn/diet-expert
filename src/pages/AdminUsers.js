@@ -12,7 +12,7 @@ const AdminUsers = () => {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    fetch('/api/users')
+    fetch('/users')
       .then(response => response.json())
       .then(data => setData(data))
       .catch(error => console.error('Error fetching user data:', error));

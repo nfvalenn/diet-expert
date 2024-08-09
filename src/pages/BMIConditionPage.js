@@ -1,9 +1,9 @@
-// components/AdminIndeksMassaTubuh.js
 import React, { useState, useEffect } from 'react';
 import AddIndeksMassaTubuhModal from '../components/modals/AddIndeksMassaTubuhModal';
 import EditIndeksMassaTubuhModal from '../components/modals/EditIndeksMassaTubuhModal';
 import DataTable from '../components/modals/DataTable';
 import AdminLayout from '../components/modals/AdminLayout';
+import api from '../services/api'; // Pastikan Anda mengimpor instance Axios yang benar
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const AdminIndeksMassaTubuh = () => {
@@ -13,36 +13,27 @@ const AdminIndeksMassaTubuh = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/indeks-massa-tubuh')
-      .then(response => response.json())
-      .then(data => setIndeksMassaTubuh(data))
+    api.get('/iconditions')
+      .then(response => {
+        setIndeksMassaTubuh(response.data);
+      })
       .catch(error => console.error('Error fetching Indeks Massa Tubuh data:', error));
   }, []);
 
   const handleAddIndeksMassaTubuh = (newIndeksMassaTubuh) => {
-    fetch('/api/indeks-massa-tubuh', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newIndeksMassaTubuh),
-    })
-      .then(response => response.json())
-      .then(indeks => {
-        setIndeksMassaTubuh([...indeksMassaTubuh, indeks]);
+    api.post('/iconditions', newIndeksMassaTubuh)
+      .then(response => {
+        setIndeksMassaTubuh([...indeksMassaTubuh, response.data]);
         setIsAddModalOpen(false);
       })
       .catch(error => console.error('Error adding Indeks Massa Tubuh:', error));
   };
 
   const handleEditIndeksMassaTubuh = (updatedIndeksMassaTubuh) => {
-    fetch(`/api/indeks-massa-tubuh/${updatedIndeksMassaTubuh.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedIndeksMassaTubuh),
-    })
-      .then(response => response.json())
-      .then(updated => {
+    api.put(`/iconditions/${updatedIndeksMassaTubuh.id}`, updatedIndeksMassaTubuh)
+      .then(response => {
         setIndeksMassaTubuh(indeksMassaTubuh.map(indeks =>
-          indeks.id === updated.id ? updated : indeks
+          indeks.id === response.data.id ? response.data : indeks
         ));
         setIsEditModalOpen(false);
       })
@@ -50,9 +41,7 @@ const AdminIndeksMassaTubuh = () => {
   };
 
   const handleDeleteIndeksMassaTubuh = (id) => {
-    fetch(`/api/indeks-massa-tubuh/${id}`, {
-      method: 'DELETE',
-    })
+    api.delete(`/iconditions/${id}`)
       .then(() => {
         setIndeksMassaTubuh(indeksMassaTubuh.filter(indeks => indeks.id !== id));
       })
@@ -60,9 +49,9 @@ const AdminIndeksMassaTubuh = () => {
   };
 
   const columns = [
-    { Header: 'Kode', accessor: 'kode' },
-    { Header: 'Kategori', accessor: 'kategori' },
-    { Header: 'Deskripsi', accessor: 'deskripsi' },
+    { Header: 'Kode', accessor: 'condition_code' },
+    { Header: 'Kategori', accessor: 'category' },
+    { Header: 'Deskripsi', accessor: 'description' },
     { Header: 'CF (Certainty Factor)', accessor: 'cf' },
     {
       Header: 'Actions',

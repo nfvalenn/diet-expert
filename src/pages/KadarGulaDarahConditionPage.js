@@ -1,9 +1,9 @@
-// src/pages/AdminBloodSugarPage.js
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/modals/AdminLayout';
 import DataTable from '../components/modals/DataTable';
 import AddBloodSugarModal from '../components/modals/AddBloodSugarModal';
 import EditBloodSugarModal from '../components/modals/EditBloodSugarModal';
+import api from '../services/api'; // Ensure this is your Axios instance
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const AdminBloodSugarPage = () => {
@@ -13,52 +13,48 @@ const AdminBloodSugarPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/conditions/blood-sugar')
-      .then(response => response.json())
-      .then(data => setConditions(data))
-      .catch(error => console.error('Error fetching conditions:', error));
+    const loadConditions = async () => {
+      try {
+        const response = await api.get('/kgconditions');
+        setConditions(response.data);
+      } catch (error) {
+        console.error('Error fetching conditions:', error);
+      }
+    };
+    loadConditions();
   }, []);
 
-  const handleAddCondition = (newCondition) => {
-    fetch('/api/conditions/blood-sugar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCondition),
-    })
-      .then(response => response.json())
-      .then(condition => {
-        setConditions([...conditions, condition]);
-        setIsAddModalOpen(false);
-      })
-      .catch(error => console.error('Error adding condition:', error));
+  const handleAddCondition = async (newCondition) => {
+    try {
+      const response = await api.post('/kgconditions', newCondition);
+      setConditions([...conditions, response.data]);
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error('Error adding condition:', error);
+    }
   };
 
-  const handleEditCondition = (updatedCondition) => {
-    fetch(`/api/conditions/blood-sugar/${updatedCondition.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedCondition),
-    })
-      .then(response => response.json())
-      .then(updated => {
-        setConditions(conditions.map(condition => (condition.id === updated.id ? updated : condition)));
-        setIsEditModalOpen(false);
-      })
-      .catch(error => console.error('Error updating condition:', error));
+  const handleEditCondition = async (updatedCondition) => {
+    try {
+      const response = await api.put(`/kgconditions/${updatedCondition.id}`, updatedCondition);
+      setConditions(conditions.map(condition => (condition.id === response.data.id ? response.data : condition)));
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating condition:', error);
+    }
   };
 
-  const handleDeleteCondition = (id) => {
-    fetch(`/api/conditions/blood-sugar/${id}`, {
-      method: 'DELETE',
-    })
-      .then(() => {
-        setConditions(conditions.filter(condition => condition.id !== id));
-      })
-      .catch(error => console.error('Error deleting condition:', error));
+  const handleDeleteCondition = async (id) => {
+    try {
+      await api.delete(`/kgconditions/${id}`);
+      setConditions(conditions.filter(condition => condition.id !== id));
+    } catch (error) {
+      console.error('Error deleting condition:', error);
+    }
   };
 
   const columns = [
-    { Header: 'Code', accessor: 'code' },
+    { Header: 'Code', accessor: 'condition_code' },
     { Header: 'Category', accessor: 'category' },
     { Header: 'Description', accessor: 'description' },
     { Header: 'CF', accessor: 'cf' },
@@ -88,22 +84,26 @@ const AdminBloodSugarPage = () => {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Kadar Gula Darah</h1>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-blue-500 text-white p-2 rounded flex items-center"
-        >
-          <FaPlus className="mr-2" /> Add Kadar Gula Darah
-        </button>
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold text-gray-700">Kadar Gula Darah</h2>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-500 text-white p-2 rounded flex items-center"
+          >
+            <FaPlus className="mr-2" /> Add Kadar Gula Darah
+          </button>
+        </div>
+        <DataTable data={conditions} columns={columns} />
       </div>
-      <DataTable columns={columns} data={conditions} />
-      <AddBloodSugarModal
-        isOpen={isAddModalOpen}
-        onRequestClose={() => setIsAddModalOpen(false)}
-        onAddCondition={handleAddCondition}
-      />
-      {selectedCondition && (
+      {isAddModalOpen && (
+        <AddBloodSugarModal
+          isOpen={isAddModalOpen}
+          onRequestClose={() => setIsAddModalOpen(false)}
+          onAddBloodSugar={handleAddCondition}
+        />
+      )}
+      {isEditModalOpen && selectedCondition && (
         <EditBloodSugarModal
           isOpen={isEditModalOpen}
           onRequestClose={() => setIsEditModalOpen(false)}

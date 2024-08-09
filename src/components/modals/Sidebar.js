@@ -90,6 +90,9 @@ const Sidebar = ({ isAdmin }) => {
                 <Link to="/admin/articles" className="block p-2 rounded hover:bg-violet-500 transition-colors duration-200">Articles</Link>
               </li>
               <li className="mb-2">
+                <Link to="/admin/food" className="block p-2 rounded hover:bg-violet-500 transition-colors duration-200">Foods</Link>
+              </li>
+              <li className="mb-2">
                 <Link to="/admin/results" className="block p-2 rounded hover:bg-violet-500 transition-colors duration-200">Results</Link>
               </li>
               <li className="mb-2">

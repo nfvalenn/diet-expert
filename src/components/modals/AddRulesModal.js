@@ -1,25 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
+import api from '../../services/api'; // Ensure this path is correct
 
-const AddRuleModal = ({ isOpen, onRequestClose, onAddRule, conditions }) => {
-  const [iConditionId, setIConditionId] = useState('');
-  const [afConditionId, setAFConditionId] = useState('');
-  const [kgConditionId, setKGConditionId] = useState('');
-  const [tsConditionId, setTSConditionId] = useState('');
-  const [hConditionId, setHConditionId] = useState('');
-  const [resultId, setResultId] = useState('');
+const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
+  const [iConditionOptions, setIConditionOptions] = useState([]);
+  const [afConditionOptions, setAFConditionOptions] = useState([]);
+  const [kgConditionOptions, setKGConditionOptions] = useState([]);
+  const [tsConditionOptions, setTSConditionOptions] = useState([]);
+  const [hConditionOptions, setHConditionOptions] = useState([]);
+  const [resultOptions, setResultOptions] = useState([]);
+
+  const [i_condition_id, setIConditionId] = useState('');
+  const [af_condition_id, setAFConditionId] = useState('');
+  const [kg_condition_id, setKGConditionId] = useState('');
+  const [ts_condition_id, setTSConditionId] = useState('');
+  const [h_condition_id, setHConditionId] = useState('');
+  const [result_id, setResultId] = useState('');
   const [cf, setCF] = useState('');
 
-  const handleSubmit = () => {
-    onAddRule({
-      i_condition_id: iConditionId,
-      af_condition_id: afConditionId,
-      kg_condition_id: kgConditionId,
-      ts_condition_id: tsConditionId,
-      h_condition_id: hConditionId,
-      result_id: resultId,
+  useEffect(() => {
+    const fetchConditions = async () => {
+      try {
+        const [iConditionsResponse, afConditionsResponse, kgConditionsResponse, tsConditionsResponse, hConditionsResponse, resultsResponse] = await Promise.all([
+          api.get('/iconditions'),
+          api.get('/afconditions'),
+          api.get('/kgconditions'),
+          api.get('/tsconditions'),
+          api.get('/hconditions'),
+          api.get('/results')
+        ]);
+
+        setIConditionOptions(iConditionsResponse.data);
+        setAFConditionOptions(afConditionsResponse.data);
+        setKGConditionOptions(kgConditionsResponse.data);
+        setTSConditionOptions(tsConditionsResponse.data);
+        setHConditionOptions(hConditionsResponse.data);
+        setResultOptions(resultsResponse.data);
+      } catch (error) {
+        console.error('Error fetching conditions:', error);
+      }
+    };
+
+    fetchConditions();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!result_id || isNaN(parseFloat(cf)) || parseFloat(cf) < 0 || parseFloat(cf) > 1) {
+      alert('Please provide valid inputs for Result ID and Certainty Factor.');
+      return;
+    }
+
+    const newRule = {
+      i_condition_id: i_condition_id,
+      af_condition_id: af_condition_id,
+      kg_condition_id: kg_condition_id,
+      ts_condition_id: ts_condition_id,
+      h_condition_id: h_condition_id,
+      result_id: result_id,
       cf: parseFloat(cf),
-    });
+    };
+
+    console.log('Submitting new rule:', newRule);
+
+    try {
+      // Ensure the onAddRule function is correctly passed and defined
+      console.log('onAddRule function:', onAddRule);
+
+      const response = await onAddRule(newRule);
+      console.log('Rule added successfully:', response);
+      onRequestClose();
+    } catch (error) {
+      console.error('Error adding rule:', error);
+      alert('Failed to add rule. Please check the console for more details.');
+    }
   };
 
   return (
@@ -30,114 +83,137 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule, conditions }) => {
       className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50"
       overlayClassName="fixed inset-0 bg-black bg-opacity-50"
     >
-      <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+      <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full max-h-screen overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Add New Rule</h2>
+
+        {/* Dropdowns for conditions and inputs for CF */}
         <div className="mb-4">
-          <label className="block mb-2">I Condition</label>
+          <label htmlFor="iCondition" className="block mb-2">I Condition</label>
           <select
-            value={iConditionId}
+            id="iCondition"
+            value={i_condition_id}
             onChange={(e) => setIConditionId(e.target.value)}
             className="p-2 border border-gray-300 rounded w-full"
+            aria-label="I Condition"
           >
             <option value="">Select I Condition</option>
-            {conditions?.i?.map((condition) => (
+            {iConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
-                {condition.name}
+                {condition.condition_code} - {condition.category}
               </option>
             ))}
           </select>
         </div>
+
         <div className="mb-4">
-          <label className="block mb-2">AF Condition</label>
+          <label htmlFor="afCondition" className="block mb-2">AF Condition</label>
           <select
-            value={afConditionId}
+            id="afCondition"
+            value={af_condition_id}
             onChange={(e) => setAFConditionId(e.target.value)}
             className="p-2 border border-gray-300 rounded w-full"
+            aria-label="AF Condition"
           >
             <option value="">Select AF Condition</option>
-            {conditions?.af?.map((condition) => (
+            {afConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
-                {condition.name}
+                {condition.condition_code} - {condition.category}
               </option>
             ))}
           </select>
         </div>
+
         <div className="mb-4">
-          <label className="block mb-2">KG Condition</label>
+          <label htmlFor="kgCondition" className="block mb-2">KG Condition</label>
           <select
-            value={kgConditionId}
+            id="kgCondition"
+            value={kg_condition_id}
             onChange={(e) => setKGConditionId(e.target.value)}
             className="p-2 border border-gray-300 rounded w-full"
+            aria-label="KG Condition"
           >
             <option value="">Select KG Condition</option>
-            {conditions?.kg?.map((condition) => (
+            {kgConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
-                {condition.name}
+                {condition.condition_code} - {condition.category}
               </option>
             ))}
           </select>
         </div>
+
         <div className="mb-4">
-          <label className="block mb-2">TS Condition</label>
+          <label htmlFor="tsCondition" className="block mb-2">TS Condition</label>
           <select
-            value={tsConditionId}
+            id="tsCondition"
+            value={ts_condition_id}
             onChange={(e) => setTSConditionId(e.target.value)}
             className="p-2 border border-gray-300 rounded w-full"
+            aria-label="TS Condition"
           >
             <option value="">Select TS Condition</option>
-            {conditions?.ts?.map((condition) => (
+            {tsConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
-                {condition.name}
+                {condition.condition_code} - {condition.category}
               </option>
             ))}
           </select>
         </div>
+
         <div className="mb-4">
-          <label className="block mb-2">H Condition</label>
+          <label htmlFor="hCondition" className="block mb-2">H Condition</label>
           <select
-            value={hConditionId}
+            id="hCondition"
+            value={h_condition_id}
             onChange={(e) => setHConditionId(e.target.value)}
             className="p-2 border border-gray-300 rounded w-full"
+            aria-label="H Condition"
           >
             <option value="">Select H Condition</option>
-            {conditions?.h?.map((condition) => (
+            {hConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
-                {condition.name}
+                {condition.condition_code} - {condition.category}
               </option>
             ))}
           </select>
         </div>
+
         <div className="mb-4">
-          <label className="block mb-2">Result</label>
-          <input
-            type="text"
-            value={resultId}
+          <label htmlFor="result" className="block mb-2">Result</label>
+          <select
+            id="result"
+            value={result_id}
             onChange={(e) => setResultId(e.target.value)}
             className="p-2 border border-gray-300 rounded w-full"
-          />
+            aria-label="Result"
+          >
+            <option value="">Select Result</option>
+            {resultOptions.map(result => (
+              <option key={result.id} value={result.id}>
+                {result.result_code} - {result.description}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="mb-4">
-          <label className="block mb-2">CF (Certainty Factor)</label>
+          <label htmlFor="cf" className="block mb-2">CF (Certainty Factor)</label>
           <input
+            id="cf"
             type="number"
             value={cf}
             onChange={(e) => setCF(e.target.value)}
-            step="0.01"
             className="p-2 border border-gray-300 rounded w-full"
+            min="0"
+            max="1"
+            step="0.01"
+            aria-label="Certainty Factor"
           />
         </div>
-        <button
-          onClick={handleSubmit}
-          className="p-2 bg-blue-500 text-white rounded mr-2"
-        >
-          Add Rule
-        </button>
-        <button
-          onClick={onRequestClose}
-          className="p-2 bg-gray-500 text-white rounded"
-        >
-          Cancel
-        </button>
+
+        <div className="flex justify-end">
+          <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">Add Rule</button>
+          <button onClick={onRequestClose} className="bg-gray-300 text-black py-2 px-4 rounded">Cancel</button>
+        </div>
       </div>
     </Modal>
   );

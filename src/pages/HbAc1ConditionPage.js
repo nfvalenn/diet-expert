@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/modals/AdminLayout';
 import DataTable from '../components/modals/DataTable';
-import AddHba1cModal from '../components/modals/AddHbcA1Modal';
-import EditHba1cModal from '../components/modals/EditHbAc1Modal';
+import AddHba1cModal from '../components/modals/AddHbcA1Modal'; // Ensure the path and name are correct
+import EditHba1cModal from '../components/modals/EditHbAc1Modal'; // Ensure the path and name are correct
+import api from '../services/api'; // Correct instance of Axios
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const AdminHba1cPage = () => {
@@ -13,52 +14,53 @@ const AdminHba1cPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/conditions/hba1c')
-      .then(response => response.json())
-      .then(data => setConditions(data))
-      .catch(error => console.error('Error fetching conditions:', error));
+    const fetchConditions = async () => {
+      try {
+        const response = await api.get('/hconditions');
+        setConditions(response.data);
+      } catch (error) {
+        console.error('Error fetching conditions:', error);
+        alert('Error fetching conditions');
+      }
+    };
+
+    fetchConditions();
   }, []);
 
-  const handleAddCondition = (newCondition) => {
-    fetch('/api/conditions/hba1c', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCondition),
-    })
-      .then(response => response.json())
-      .then(condition => {
-        setConditions([...conditions, condition]);
-        setIsAddModalOpen(false);
-      })
-      .catch(error => console.error('Error adding condition:', error));
+  const handleAddCondition = async (newCondition) => {
+    try {
+      const response = await api.post('/hconditions', newCondition);
+      setConditions([...conditions, response.data]);
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error('Error adding condition:', error);
+      alert('Error adding condition');
+    }
   };
 
-  const handleEditCondition = (updatedCondition) => {
-    fetch(`/api/conditions/hba1c/${updatedCondition.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedCondition),
-    })
-      .then(response => response.json())
-      .then(updated => {
-        setConditions(conditions.map(condition => (condition.id === updated.id ? updated : condition)));
-        setIsEditModalOpen(false);
-      })
-      .catch(error => console.error('Error updating condition:', error));
+  const handleEditCondition = async (updatedCondition) => {
+    try {
+      const response = await api.put(`/hconditions/${updatedCondition.id}`, updatedCondition);
+      setConditions(conditions.map(condition => (condition.id === response.data.id ? response.data : condition)));
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating condition:', error);
+      alert('Error updating condition');
+    }
   };
 
-  const handleDeleteCondition = (id) => {
-    fetch(`/api/conditions/hba1c/${id}`, {
-      method: 'DELETE',
-    })
-      .then(() => {
-        setConditions(conditions.filter(condition => condition.id !== id));
-      })
-      .catch(error => console.error('Error deleting condition:', error));
+  const handleDeleteCondition = async (id) => {
+    try {
+      await api.delete(`/hconditions/${id}`);
+      setConditions(conditions.filter(condition => condition.id !== id));
+    } catch (error) {
+      console.error('Error deleting condition:', error);
+      alert('Error deleting condition');
+    }
   };
 
   const columns = [
-    { Header: 'Code', accessor: 'code' },
+    { Header: 'Code', accessor: 'condition_code' },
     { Header: 'Category', accessor: 'category' },
     { Header: 'Description', accessor: 'description' },
     { Header: 'CF', accessor: 'cf' },
@@ -88,16 +90,18 @@ const AdminHba1cPage = () => {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">HbA1c Conditions</h1>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-blue-500 text-white p-2 rounded flex items-center"
-        >
-          <FaPlus className="mr-2" /> Add New
-        </button>
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold text-gray-700">HbA1c Conditions</h1>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-500 text-white p-2 rounded flex items-center"
+          >
+            <FaPlus className="mr-2" /> Add New
+          </button>
+        </div>
+        <DataTable columns={columns} data={conditions} />
       </div>
-      <DataTable columns={columns} data={conditions} />
       <AddHba1cModal
         isOpen={isAddModalOpen}
         onRequestClose={() => setIsAddModalOpen(false)}

@@ -3,14 +3,14 @@ import React, { useState } from 'react';
 import Modal from 'react-modal'; // Pastikan Modal diimpor dari library yang Anda gunakan
 
 const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
-  const [code, setCode] = useState('');
+  const [condition_code, setCode] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [cf, setCf] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAddCondition({ code, category, description, cf });
+    onAddCondition({ condition_code, category, description, cf });
     setCode('');
     setCategory('');
     setDescription('');
@@ -32,7 +32,7 @@ const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
             <label className="block text-sm font-medium mb-1">Code</label>
             <input
               type="text"
-              value={code}
+              value={condition_code}
               onChange={(e) => setCode(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               required
@@ -61,7 +61,7 @@ const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">CF</label>
             <input
-              type="number"
+              type="text"
               value={cf}
               onChange={(e) => setCf(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"

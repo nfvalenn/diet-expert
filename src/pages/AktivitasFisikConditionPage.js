@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import AdminLayout from '../components/modals/AdminLayout';
-import DataTable from '../components/modals/DataTable';
+import AdminLayout from '../components/modals/AdminLayout'; // Corrected path
+import DataTable from '../components/modals/DataTable'; // Corrected path
 import AddAktivitasFisikModal from '../components/modals/AddAktivitasFisikModal';
 import EditAktivitasFisikModal from '../components/modals/EditAktivitasFisikModal';
+import api from '../services/api'; // Correct instance of Axios
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const AdminAktivitasFisik = () => {
@@ -12,36 +13,25 @@ const AdminAktivitasFisik = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/aktivitas-fisik')
-      .then(response => response.json())
-      .then(data => setAktivitasFisiks(data))
+    api.get('/afconditions')
+      .then(response => setAktivitasFisiks(response.data))
       .catch(error => console.error('Error fetching aktivitas fisik data:', error));
   }, []);
 
   const handleAddAktivitasFisik = (newAktivitasFisik) => {
-    fetch('/api/aktivitas-fisik', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newAktivitasFisik),
-    })
-      .then(response => response.json())
-      .then(aktivitas => {
-        setAktivitasFisiks([...aktivitasFisiks, aktivitas]);
+    api.post('/afconditions', newAktivitasFisik)
+      .then(response => {
+        setAktivitasFisiks([...aktivitasFisiks, response.data]);
         setIsAddModalOpen(false);
       })
       .catch(error => console.error('Error adding aktivitas fisik:', error));
   };
 
   const handleEditAktivitasFisik = (updatedAktivitasFisik) => {
-    fetch(`/api/aktivitas-fisik/${updatedAktivitasFisik.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedAktivitasFisik),
-    })
-      .then(response => response.json())
-      .then(updated => {
+    api.put(`/afconditions/${updatedAktivitasFisik.id}`, updatedAktivitasFisik)
+      .then(response => {
         setAktivitasFisiks(aktivitasFisiks.map(aktivitas =>
-          aktivitas.id === updated.id ? updated : aktivitas
+          aktivitas.id === response.data.id ? response.data : aktivitas
         ));
         setIsEditModalOpen(false);
       })
@@ -49,9 +39,7 @@ const AdminAktivitasFisik = () => {
   };
 
   const handleDeleteAktivitasFisik = (id) => {
-    fetch(`/api/aktivitas-fisik/${id}`, {
-      method: 'DELETE',
-    })
+    api.delete(`/afconditions/${id}`)
       .then(() => {
         setAktivitasFisiks(aktivitasFisiks.filter(aktivitas => aktivitas.id !== id));
       })
@@ -59,9 +47,9 @@ const AdminAktivitasFisik = () => {
   };
 
   const columns = [
-    { Header: 'Kode', accessor: 'kode' },
-    { Header: 'Kategori', accessor: 'kategori' },
-    { Header: 'Deskripsi', accessor: 'deskripsi' },
+    { Header: 'Kode', accessor: 'condition_code' },
+    { Header: 'Kategori', accessor: 'category' },
+    { Header: 'Deskripsi', accessor: 'description' },
     { Header: 'CF (Certainty Factor)', accessor: 'cf' },
     {
       Header: 'Actions',

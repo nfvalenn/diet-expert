@@ -26,7 +26,7 @@ const RegisterPage = () => {
         className="w-1/2 bg-cover bg-center hidden md:block"
         style={{ 
           backgroundImage: "url('/bg-login.png')", 
-          backgroundSize: 'cover', // Mengatur gambar untuk sepenuhnya terlihat
+          backgroundSize: 'contain', // Mengatur gambar untuk sepenuhnya terlihat
           backgroundPosition: 'center', // Posisi gambar di tengah
           backgroundRepeat: 'no-repeat' // Mencegah gambar diulang
         }}
