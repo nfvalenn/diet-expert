@@ -1,25 +1,31 @@
-// src/components/modals/EditImtModal.js
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 
 const EditImtModal = ({ isOpen, onRequestClose, condition, onEditImt }) => {
-  const [code, setCode] = useState(condition?.code || '');
+  // Initialize state based on condition prop
+  const [condition_code, setCode] = useState(condition?.condition_code || '');
   const [category, setCategory] = useState(condition?.category || '');
   const [description, setDescription] = useState(condition?.description || '');
   const [cf, setCf] = useState(condition?.cf || '');
 
+  // Update state when condition prop changes
   useEffect(() => {
     if (condition) {
-      setCode(condition.code);
+      setCode(condition.condition_code);
       setCategory(condition.category);
       setDescription(condition.description);
       setCf(condition.cf);
     }
   }, [condition]);
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    onEditImt({ ...condition, code, category, description, cf });
+    if (typeof onEditImt === 'function') {
+      onEditImt({ ...condition, condition_code, category, description, cf });
+    } else {
+      console.error('onEditImt is not a function');
+    }
   };
 
   return (
@@ -37,7 +43,7 @@ const EditImtModal = ({ isOpen, onRequestClose, condition, onEditImt }) => {
             <label className="block text-sm font-medium mb-1">Code</label>
             <input
               type="text"
-              value={code}
+              value={condition_code}
               onChange={(e) => setCode(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               required
@@ -73,19 +79,19 @@ const EditImtModal = ({ isOpen, onRequestClose, condition, onEditImt }) => {
               required
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-center space-x-2">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white p-2 rounded w-32"
+            >
+              Update
+            </button>
             <button
               type="button"
               onClick={onRequestClose}
-              className="bg-gray-500 text-white p-2 rounded mr-2"
+              className="bg-gray-500 text-white p-2 w-32 rounded"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white p-2 rounded"
-            >
-              Update Condition
+              Batal
             </button>
           </div>
         </form>

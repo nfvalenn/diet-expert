@@ -135,8 +135,8 @@ const AddAktivitasFisikModal = ({ isOpen, onRequestClose, onAddAktivitasFisik })
           placeholder="CF"
         />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <button type="submit" style={primaryButtonStyles}>Add</button>
-          <button type="button" onClick={onRequestClose} style={secondaryButtonStyles}>Close</button>
+          <button type="submit" style={primaryButtonStyles}>Tambah Kondisi</button>
+          <button type="button" onClick={onRequestClose} style={secondaryButtonStyles}>Batal</button>
         </div>
       </form>
     </Modal>

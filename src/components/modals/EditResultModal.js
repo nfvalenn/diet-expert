@@ -1,25 +1,30 @@
-// src/components/modals/EditBloodSugarModal.js
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 
-const EditBloodSugarModal = ({ isOpen, onRequestClose, condition, onEditBloodSugar }) => {
-  const [condition_code, setCode] = useState(condition?.condition_code || '');
-  const [category, setCategory] = useState(condition?.category || '');
-  const [description, setDescription] = useState(condition?.description || '');
-  const [cf, setCf] = useState(condition?.cf || '');
+const EditResultModal = ({ isOpen, onRequestClose, result, onEditResult }) => {
+  const [code, setCode] = useState(result?.code || '');
+  const [category, setCategory] = useState(result?.category || '');
+  const [calorieRange, setCalorieRange] = useState(result?.calorie_range || '');
+  const [description, setDescription] = useState(result?.description || '');
 
   useEffect(() => {
-    if (condition) {
-      setCode(condition.condition_code);
-      setCategory(condition.category);
-      setDescription(condition.description);
-      setCf(condition.cf);
+    if (result) {
+      setCode(result.code);
+      setCategory(result.category);
+      setCalorieRange(result.calorie_range);
+      setDescription(result.description);
     }
-  }, [condition]);
+  }, [result]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onEditBloodSugar({ ...condition, condition_code, category, description, cf });
+    onEditResult({
+      ...result,
+      code,
+      category,
+      calorie_range: calorieRange,
+      description,
+    });
   };
 
   return (
@@ -31,21 +36,23 @@ const EditBloodSugarModal = ({ isOpen, onRequestClose, condition, onEditBloodSug
       overlayClassName="fixed inset-0 bg-black bg-opacity-50"
     >
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
-        <h2 className="text-xl font-bold mb-4">Edit Kondisi Gula Darah</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-gray-700">Edit Konsultasi Hasil</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Kode</label>
+            <label htmlFor="code" className="block text-sm font-medium mb-1 text-gray-700">Kode</label>
             <input
+              id="code"
               type="text"
-              value={condition_code}
+              value={code}
               onChange={(e) => setCode(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Kategori</label>
+            <label htmlFor="category" className="block text-sm font-medium mb-1 text-gray-700">Kategori</label>
             <input
+              id="category"
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -54,21 +61,23 @@ const EditBloodSugarModal = ({ isOpen, onRequestClose, condition, onEditBloodSug
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Deskripsi</label>
+            <label htmlFor="calorieRange" className="block text-sm font-medium mb-1 text-gray-700">Kalori Range</label>
             <input
+              id="calorieRange"
               type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={calorieRange}
+              onChange={(e) => setCalorieRange(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">CF</label>
+            <label htmlFor="description" className="block text-sm font-medium mb-1 text-gray-700">Deskripsi</label>
             <input
-              type="number"
-              value={cf}
-              onChange={(e) => setCf(e.target.value)}
+              id="description"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="border border-gray-300 rounded p-2 w-full"
               required
             />
@@ -94,4 +103,4 @@ const EditBloodSugarModal = ({ isOpen, onRequestClose, condition, onEditBloodSug
   );
 };
 
-export default EditBloodSugarModal;
+export default EditResultModal;

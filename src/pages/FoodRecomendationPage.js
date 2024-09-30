@@ -11,6 +11,7 @@ const FoodRecommendationPage = () => {
   const [selectedFoodRecommendation, setSelectedFoodRecommendation] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
@@ -19,40 +20,55 @@ const FoodRecommendationPage = () => {
     const fetchFoodRecommendations = async () => {
       try {
         const response = await api.get(`/foods?page=${page}&limit=${pageSize}`);
-        setFoodRecommendations(response.data.items);
-        setTotalCount(response.data.totalCount);
+        
+        if (response.data && response.data.items) {
+          setFoodRecommendations(response.data.items);
+          setTotalCount(response.data.totalCount);
+        } else {
+          console.error('Unexpected response format', response.data);
+        }
       } catch (error) {
         console.error('Error fetching food recommendations:', error);
+        setErrorMessage('Failed to fetch food recommendations.');
       }
     };
 
     fetchFoodRecommendations();
   }, [page, pageSize]);
 
-  const handleAddFoodRecommendation = (newFoodRecommendation) => {
-    api.post('/foods', newFoodRecommendation)
-      .then(response => {
-        setFoodRecommendations([...foodRecommendations, response.data]);
-        setIsAddModalOpen(false);
-      })
-      .catch(error => console.error('Error adding food recommendation:', error));
+  const handleAddFoodRecommendation = async (newFoodRecommendation) => {
+    setErrorMessage('');
+    try {
+      const response = await api.post('/foods', newFoodRecommendation);
+      setFoodRecommendations([...foodRecommendations, response.data]);
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error('Error adding food recommendation:', error);
+      setErrorMessage(error.response?.data.error || 'Failed to add food recommendation.');
+    }
   };
 
-  const handleEditFoodRecommendation = (updatedFoodRecommendation) => {
-    api.put(`/foods/${updatedFoodRecommendation.id}`, updatedFoodRecommendation)
-      .then(response => {
-        setFoodRecommendations(foodRecommendations.map(fr => (fr.id === response.data.id ? response.data : fr)));
-        setIsEditModalOpen(false);
-      })
-      .catch(error => console.error('Error updating food recommendation:', error));
+  const handleEditFoodRecommendation = async (updatedFoodRecommendation) => {
+    setErrorMessage('');
+    try {
+      const response = await api.put(`/foods/${updatedFoodRecommendation.id}`, updatedFoodRecommendation);
+      setFoodRecommendations(foodRecommendations.map(fr => (fr.id === response.data.id ? response.data : fr)));
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating food recommendation:', error);
+      setErrorMessage(error.response?.data.error || 'Failed to update food recommendation.');
+    }
   };
 
-  const handleDeleteFoodRecommendation = (id) => {
-    api.delete(`/foods/${id}`)
-      .then(() => {
+  const handleDeleteFoodRecommendation = async (id) => {
+    if (window.confirm("Are you sure you want to delete this food recommendation?")) {
+      try {
+        await api.delete(`/foods/${id}`);
         setFoodRecommendations(foodRecommendations.filter(fr => fr.id !== id));
-      })
-      .catch(error => console.error('Error deleting food recommendation:', error));
+      } catch (error) {
+        console.error('Error deleting food recommendation:', error);
+      }
+    }
   };
 
   const handlePageChange = (newPage) => {
@@ -60,21 +76,21 @@ const FoodRecommendationPage = () => {
   };
 
   const handlePageSizeChange = (event) => {
-    setPageSize(Number(event.target.value));
-    setPage(1); // Reset to the first page
+    const newSize = Number(event.target.value);
+    setPageSize(newSize);
+    setPage(1);
   };
 
   const pageCount = Math.ceil(totalCount / pageSize);
 
-  // Define columns here
   const columns = [
-    { Header: 'Name', accessor: 'name' },
+    { Header: 'Nama', accessor: 'name' },
     { Header: 'Porsi', accessor: 'porsi' },
-    { Header: 'Weight', accessor: 'weight' },
-    { Header: 'Calories', accessor: 'calories' },
+    { Header: 'Berat (gr)', accessor: 'weight' },
+    { Header: 'Kalori', accessor: 'calories' },
     { Header: 'Protein', accessor: 'protein' },
-    { Header: 'Fat', accessor: 'fat' },
-    { Header: 'Time', accessor: 'time' },
+    { Header: 'Lemak', accessor: 'fat' },
+    { Header: 'Waktu', accessor: 'time' },
     {
       Header: 'Actions',
       accessor: 'actions',
@@ -102,48 +118,49 @@ const FoodRecommendationPage = () => {
 
   return (
     <AdminLayout>
-      <div className="flex flex-col min-h-screen">
-        <div className="flex-grow p-6 bg-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-3xl font-bold">Food Recommendations</h1>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center"
-            >
-              <FaPlus className="mr-2" /> Add New
-            </button>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <DataTable
-              columns={columns}
-              data={foodRecommendations}
-              onEdit={(item) => {
-                setSelectedFoodRecommendation(item);
-                setIsEditModalOpen(true);
-              }}
-              onDelete={(id) => handleDeleteFoodRecommendation(id)}
-              onPageChange={handlePageChange}
-              page={page}
-              pageCount={pageCount}
-            />
-          </div>
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold text-gray-700">Rekomendasi Makanan</h2>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center"
+          >
+            <FaPlus className="mr-2" /> Tambah Makanan
+          </button>
         </div>
 
-        <AddFoodRecommendationModal
-          isOpen={isAddModalOpen}
-          onRequestClose={() => setIsAddModalOpen(false)}
-          onAdd={handleAddFoodRecommendation}
-        />
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 
-        {selectedFoodRecommendation && (
-          <EditFoodRecommendationModal
-            isOpen={isEditModalOpen}
-            onRequestClose={() => setIsEditModalOpen(false)}
-            foodRecommendation={selectedFoodRecommendation}
-            onEdit={handleEditFoodRecommendation}
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <DataTable
+            columns={columns}
+            data={foodRecommendations}
+            onPageChange={handlePageChange}
+            page={page}
+            pageCount={pageCount}
+            onPageSizeChange={handlePageSizeChange}
+            pageSize={pageSize}
           />
-        )}
+        </div>
       </div>
+
+      <AddFoodRecommendationModal
+        isOpen={isAddModalOpen}
+        onRequestClose={() => setIsAddModalOpen(false)}
+        onAdd={handleAddFoodRecommendation}
+      />
+
+      {selectedFoodRecommendation && (
+        <EditFoodRecommendationModal
+          isOpen={isEditModalOpen}
+          onRequestClose={() => {
+            setSelectedFoodRecommendation(null);
+            setIsEditModalOpen(false);
+          }}
+          foodRecommendation={selectedFoodRecommendation}
+          onEdit={handleEditFoodRecommendation}
+        />
+      )}
     </AdminLayout>
   );
 };

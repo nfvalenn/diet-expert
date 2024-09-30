@@ -1,49 +1,91 @@
 import React, { useState } from 'react';
+import Modal from 'react-modal';
+import axios from 'axios';
 
-const ProfileForm = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    // Data profil lainnya
-  });
+const ProfileModal = ({ isOpen, onRequestClose, user }) => {
+  const [formData, setFormData] = useState({ username: user.username, email: user.email });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Logika untuk memperbarui profil
-    console.log(formData);
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put('/api/users/profile', formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.status === 200) {
+        onRequestClose(response.data); // Pass updated user data
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } catch (error) {
+      setError('Error updating profile.');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
-      <div className="mb-4">
-        <label className="block mb-2">Name</label>
-        <input
-          type="text"
-          name="name"
-          className="border p-2 w-full rounded-md"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block mb-2">Email</label>
-        <input
-          type="email"
-          name="email"
-          className="border p-2 w-full rounded-md"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <button type="submit" className="bg-violet-400 text-white p-2 rounded-md">Save</button>
-    </form>
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={() => onRequestClose(null)}
+      contentLabel="Edit Profile"
+      className="fixed inset-0 bg-white shadow-lg p-4 mx-auto max-w-lg mt-20"
+      overlayClassName="fixed inset-0 bg-gray-500 bg-opacity-75"
+    >
+      <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <div className="text-red-500 mb-2">{error}</div>}
+        <div>
+          <label htmlFor="username" className="block text-gray-700">Username</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            value={formData.username}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded w-full"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="block text-gray-700">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded w-full"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700"
+        >
+          {loading ? 'Updating...' : 'Update Profile'}
+        </button>
+        <button
+          type="button"
+          onClick={() => onRequestClose(null)}
+          className="bg-gray-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-gray-700 ml-4"
+        >
+          Cancel
+        </button>
+      </form>
+    </Modal>
   );
 };
 
-export default ProfileForm;
+export default ProfileModal;

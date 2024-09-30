@@ -84,11 +84,11 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
       overlayClassName="fixed inset-0 bg-black bg-opacity-50"
     >
       <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full max-h-screen overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Add New Rule</h2>
+        <h2 className="text-2xl text-center font-bold mb-6">Tambah Aturan Baru</h2>
 
         {/* Dropdowns for conditions and inputs for CF */}
         <div className="mb-4">
-          <label htmlFor="iCondition" className="block mb-2">I Condition</label>
+          <label htmlFor="iCondition" className="block mb-2">Kondisi Indeks Massa Tubuh</label>
           <select
             id="iCondition"
             value={i_condition_id}
@@ -96,7 +96,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             className="p-2 border border-gray-300 rounded w-full"
             aria-label="I Condition"
           >
-            <option value="">Select I Condition</option>
+            <option value="">Select Kondisi Indeks Massa Tubuh</option>
             {iConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
                 {condition.condition_code} - {condition.category}
@@ -106,7 +106,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="afCondition" className="block mb-2">AF Condition</label>
+          <label htmlFor="afCondition" className="block mb-2">Status Aktivitas Fisik</label>
           <select
             id="afCondition"
             value={af_condition_id}
@@ -114,7 +114,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             className="p-2 border border-gray-300 rounded w-full"
             aria-label="AF Condition"
           >
-            <option value="">Select AF Condition</option>
+            <option value="">Select Status Aktivitas Fisik</option>
             {afConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
                 {condition.condition_code} - {condition.category}
@@ -124,7 +124,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="kgCondition" className="block mb-2">KG Condition</label>
+          <label htmlFor="kgCondition" className="block mb-2">Kadar Gula Darah</label>
           <select
             id="kgCondition"
             value={kg_condition_id}
@@ -132,7 +132,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             className="p-2 border border-gray-300 rounded w-full"
             aria-label="KG Condition"
           >
-            <option value="">Select KG Condition</option>
+            <option value="">Select Kadar Gula Darah</option>
             {kgConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
                 {condition.condition_code} - {condition.category}
@@ -142,7 +142,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="tsCondition" className="block mb-2">TS Condition</label>
+          <label htmlFor="tsCondition" className="block mb-2">Tingkat Stress</label>
           <select
             id="tsCondition"
             value={ts_condition_id}
@@ -150,7 +150,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             className="p-2 border border-gray-300 rounded w-full"
             aria-label="TS Condition"
           >
-            <option value="">Select TS Condition</option>
+            <option value="">Select Tingkat Stress</option>
             {tsConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
                 {condition.condition_code} - {condition.category}
@@ -160,7 +160,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="hCondition" className="block mb-2">H Condition</label>
+          <label htmlFor="hCondition" className="block mb-2">HbA1c</label>
           <select
             id="hCondition"
             value={h_condition_id}
@@ -168,7 +168,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             className="p-2 border border-gray-300 rounded w-full"
             aria-label="H Condition"
           >
-            <option value="">Select H Condition</option>
+            <option value="">Select HbA1c</option>
             {hConditionOptions.map(condition => (
               <option key={condition.id} value={condition.id}>
                 {condition.condition_code} - {condition.category}
@@ -178,7 +178,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="result" className="block mb-2">Result</label>
+          <label htmlFor="result" className="block mb-2">Kebutuhan Kalori</label>
           <select
             id="result"
             value={result_id}
@@ -186,7 +186,7 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             className="p-2 border border-gray-300 rounded w-full"
             aria-label="Result"
           >
-            <option value="">Select Result</option>
+            <option value="">Select Kebutuhan Kalori</option>
             {resultOptions.map(result => (
               <option key={result.id} value={result.id}>
                 {result.result_code} - {result.description}
@@ -209,10 +209,13 @@ const AddRuleModal = ({ isOpen, onRequestClose, onAddRule }) => {
             aria-label="Certainty Factor"
           />
         </div>
-
-        <div className="flex justify-end">
-          <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">Add Rule</button>
-          <button onClick={onRequestClose} className="bg-gray-300 text-black py-2 px-4 rounded">Cancel</button>
+        <div className="flex justify-end space-x-2">
+          <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded flex-1">
+            Tambah Aturan
+          </button>
+          <button onClick={onRequestClose} className="bg-gray-300 text-black py-2 px-4 rounded flex-1">
+            Batal
+          </button>
         </div>
       </div>
     </Modal>

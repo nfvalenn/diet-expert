@@ -1,14 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect from React
+import Modal from 'react-modal'; // Import Modal from react-modal
 
 // Ensure to set the app element for accessibility
 Modal.setAppElement('#root');
 
 const EditUserModal = ({ isOpen, onRequestClose, onUpdateUser, user }) => {
-  const [updatedUser, setUpdatedUser] = useState(user);
+  const [updatedUser, setUpdatedUser] = useState({ username: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
+  // Update form fields when the `user` prop changes
   useEffect(() => {
-    setUpdatedUser(user); // Update form when user prop changes
+    if (user) {
+      setUpdatedUser({
+        id: user.id || '', // Ensure ID is included
+        username: user.username || '',
+        email: user.email || '',
+        password: '', // Leave the password blank by default
+      });
+    }
   }, [user]);
 
   const handleInputChange = (e) => {
@@ -16,8 +26,18 @@ const EditUserModal = ({ isOpen, onRequestClose, onUpdateUser, user }) => {
     setUpdatedUser({ ...updatedUser, [name]: value });
   };
 
-  const handleSubmit = () => {
-    onUpdateUser(updatedUser);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setError('');
+      setSuccess('');
+      await onUpdateUser(updatedUser); // Ensure the user ID is included in the request
+      setSuccess('User updated successfully!');
+      onRequestClose(); // Optionally close modal after update
+    } catch (err) {
+      console.error('Error updating user:', err);
+      setError('Failed to update user. Please try again.');
+    }
   };
 
   return (
@@ -51,14 +71,17 @@ const EditUserModal = ({ isOpen, onRequestClose, onUpdateUser, user }) => {
       contentLabel="Edit User Modal"
     >
       <h2 className="text-2xl text-center font-semibold mb-4 text-gray-800">Edit User</h2>
-      <form className="space-y-3">
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {success && <p className="text-green-500 text-center mb-4">{success}</p>}
+      <form className="space-y-3" onSubmit={handleSubmit}>
         <input
           type="text"
-          name="name"
-          value={updatedUser.name}
+          name="username"
+          value={updatedUser.username}
           onChange={handleInputChange}
-          placeholder="Name"
+          placeholder="Username"
           className="border border-gray-300 p-2 rounded w-full shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          required
         />
         <input
           type="email"
@@ -67,29 +90,29 @@ const EditUserModal = ({ isOpen, onRequestClose, onUpdateUser, user }) => {
           onChange={handleInputChange}
           placeholder="Email"
           className="border border-gray-300 p-2 rounded w-full shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          required
         />
         <input
-          type="text"
-          name="role"
-          value={updatedUser.role}
+          type="password"
+          name="password"
+          value={updatedUser.password}
           onChange={handleInputChange}
-          placeholder="Role"
+          placeholder="Password (Leave blank if unchanged)"
           className="border border-gray-300 p-2 rounded w-full shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
-        <div className="flex justify-end space-x-2 mt-4">
+        <div className="flex justify-center space-x-2 mt-4">
           <button
-            type="button"
-            onClick={handleSubmit}
+            type="submit"
             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Update User
+            Update
           </button>
           <button
             type="button"
             onClick={onRequestClose}
-            className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            Close
+            Batal
           </button>
         </div>
       </form>

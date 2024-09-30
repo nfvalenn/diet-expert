@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // Pastikan Anda mengimpor instance Axios yang benar
+import api from '../services/api'; // Ensure Axios instance is correctly configured
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    setLoading(true); // Set loading to true during registration
+
     try {
       await api.post('/register', { username, email, password });
+      setLoading(false);
       navigate('/login');
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      setLoading(false);
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
       console.error('Registration failed:', error);
     }
   };
@@ -26,9 +41,9 @@ const RegisterPage = () => {
         className="w-1/2 bg-cover bg-center hidden md:block"
         style={{ 
           backgroundImage: "url('/bg-login.png')", 
-          backgroundSize: 'contain', // Mengatur gambar untuk sepenuhnya terlihat
-          backgroundPosition: 'center', // Posisi gambar di tengah
-          backgroundRepeat: 'no-repeat' // Mencegah gambar diulang
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}
       ></div>
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
@@ -68,9 +83,10 @@ const RegisterPage = () => {
             </div>
             <button 
               type="submit" 
-              className="bg-violet-400 text-white p-3 rounded-md w-full hover:bg-violet-500"
+              className={`bg-violet-400 text-white p-3 rounded-md w-full hover:bg-violet-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading} // Disable button when loading
             >
-              Register
+              {loading ? 'Registering...' : 'Register'}
             </button>
           </form>
         </div>

@@ -34,7 +34,7 @@ const AdminBloodSugarPage = () => {
     }
   };
 
-  const handleEditCondition = async (updatedCondition) => {
+  const handleEditBloodSugar = async (updatedCondition) => {
     try {
       const response = await api.put(`/kgconditions/${updatedCondition.id}`, updatedCondition);
       setConditions(conditions.map(condition => (condition.id === response.data.id ? response.data : condition)));
@@ -54,9 +54,9 @@ const AdminBloodSugarPage = () => {
   };
 
   const columns = [
-    { Header: 'Code', accessor: 'condition_code' },
-    { Header: 'Category', accessor: 'category' },
-    { Header: 'Description', accessor: 'description' },
+    { Header: 'Kode', accessor: 'condition_code' },
+    { Header: 'Kategori', accessor: 'category' },
+    { Header: 'Deskripsi', accessor: 'description' },
     { Header: 'CF', accessor: 'cf' },
     {
       Header: 'Actions',
@@ -91,7 +91,7 @@ const AdminBloodSugarPage = () => {
             onClick={() => setIsAddModalOpen(true)}
             className="bg-blue-500 text-white p-2 rounded flex items-center"
           >
-            <FaPlus className="mr-2" /> Add Kadar Gula Darah
+            <FaPlus className="mr-2" /> Tambah Kadar Gula Darah
           </button>
         </div>
         <DataTable data={conditions} columns={columns} />
@@ -108,7 +108,7 @@ const AdminBloodSugarPage = () => {
           isOpen={isEditModalOpen}
           onRequestClose={() => setIsEditModalOpen(false)}
           condition={selectedCondition}
-          onEditCondition={handleEditCondition}
+          onEditBloodSugar={handleEditBloodSugar}
         />
       )}
     </AdminLayout>

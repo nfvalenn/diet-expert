@@ -5,10 +5,8 @@ import Footer from './components/modals/Footer';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import AdminDashboard from './pages/AdminDashboardPage';
-import AdminUsers from './pages/AdminUsers';
 import Home from './pages/HomePage';
 import ConsultationPage from './pages/ConsultationPage';
 import Results from './pages/ResultsPage';
@@ -26,6 +24,12 @@ import FoodRecommendationPage from './pages/FoodRecomendationPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleDetailPageUser from './pages/ArticleDetailPageUser';
 import ArticlesPageUser from './pages/ArticleUserPage';
+import UserProfilePage from './pages/UserProfilePage';
+import LogoutPage from './pages/LogoutPage';
+import AdminUsersPage from './pages/ManageUsersPage';
+import ProtectedPage from './pages/ProtectedPage';
+import ConsultationDetailPageUser from './pages/ConsultationDetailPage';
+import ConsultationDetailPage from './pages/AdminConsultationDetailHistoryPage';
 
 const App = () => {
   return (
@@ -44,17 +48,16 @@ const Main = () => {
     '/home', 
     '/articles', 
     '/articlesuser', 
-    '/articlesuser/:id' // This will not match correctly for dynamic routes
+    '/articlesuser/:id',
+    '/profileuser',
+    '/consultations/history', // Base route
+    '/consultations/history/:id', // Dynamic route // Admin dynamic route
   ];
 
-  // Check if the current location path matches any of the noHeaderFooterRoutes, including dynamic routes
+  // Function to check if the current route matches any pattern, including dynamic routes
   const showHeaderFooter = !noHeaderFooterRoutes.some(route => {
-    if (route.includes(':id')) {
-      // Handle dynamic route
-      const regex = new RegExp(`^${route.replace(':id', '[0-9]+')}$`);
-      return regex.test(location.pathname);
-    }
-    return location.pathname === route;
+    const regex = new RegExp(`^${route.replace(':id', '[^/]+')}$`);
+    return regex.test(location.pathname);
   });
 
   return (
@@ -65,7 +68,10 @@ const Main = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/logout" element={<LogoutPage />} />    
+          <Route path="/protected" element={<ProtectedPage />} />          
+          <Route path="/profileuser" element={<UserProfilePage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path='/adminDashboard' element={<AdminDashboard />} />
           <Route path='/home' element={<Home />} />
           <Route path='/admin/results' element={<Results />} />
@@ -76,15 +82,16 @@ const Main = () => {
           <Route path='/admin/condition/stress-level' element={<AdminStressLevelPage />} />
           <Route path='/admin/condition/hba1c' element={<AdminHba1cPage />} />
           <Route path='/admin/consultation-history' element={<AdminConsultationHistoryPage />} />
+          <Route path="/admin/consultations/history/:id" element={<ConsultationDetailPage />} />
           <Route path='/admin/rules' element={<RulesPage />} />
           <Route path='/articles' element={<Articles />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
           <Route path="/articlesuser/:id" element={<ArticleDetailPageUser />} />
           <Route path="/articlesuser" element={<ArticlesPageUser />} />
-          <Route path='/consultation/history' element={<ConsultationHistoryPage />} />
+          <Route path='/consultations/history' element={<ConsultationHistoryPage />} />
+          <Route path="/consultations/history/:id" element={<ConsultationDetailPageUser />} />
           <Route path='/admin/food' element={<FoodRecommendationPage />} />
           <Route path='/consultation' element={<ConsultationPage />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/recommendations" element={<RecommendationsPage />} />
         </Routes>
       </main>

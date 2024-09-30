@@ -100,10 +100,10 @@ const AddBloodSugarModal = ({ isOpen, onRequestClose, onAddBloodSugar }) => {
       style={modalStyles}
     >
       <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '16px' }}>
-        Add Blood Sugar
+        Tambah Kondisi Gula Darah
       </h2>
       <form onSubmit={handleSubmit} style={formStyles}>
-        <label style={{ marginBottom: '8px', color: '#333' }}>Code</label>
+        <label style={{ marginBottom: '8px', color: '#333' }}>Kode</label>
         <input
           type="text"
           value={condition_code}
@@ -111,7 +111,7 @@ const AddBloodSugarModal = ({ isOpen, onRequestClose, onAddBloodSugar }) => {
           style={inputStyles}
           placeholder="Code"
         />
-        <label style={{ marginBottom: '8px', color: '#333' }}>Category</label>
+        <label style={{ marginBottom: '8px', color: '#333' }}>Kategori</label>
         <input
           type="text"
           value={category}
@@ -119,7 +119,7 @@ const AddBloodSugarModal = ({ isOpen, onRequestClose, onAddBloodSugar }) => {
           style={inputStyles}
           placeholder="Category"
         />
-        <label style={{ marginBottom: '8px', color: '#333' }}>Description</label>
+        <label style={{ marginBottom: '8px', color: '#333' }}>Deskripsi</label>
         <input
           type="text"
           value={description}
@@ -136,8 +136,8 @@ const AddBloodSugarModal = ({ isOpen, onRequestClose, onAddBloodSugar }) => {
           placeholder="CF"
         />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <button type="submit" style={primaryButtonStyles}>Add</button>
-          <button type="button" onClick={onRequestClose} style={secondaryButtonStyles}>Close</button>
+          <button type="submit" style={primaryButtonStyles}>Tambah Kondisi</button>
+          <button type="button" onClick={onRequestClose} style={secondaryButtonStyles}>Batal</button>
         </div>
       </form>
     </Modal>

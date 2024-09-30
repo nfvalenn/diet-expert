@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
 const AddUserModal = ({ isOpen, onRequestClose, onAddUser }) => {
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
+  const [newUser, setNewUser] = useState({ username: '', email: '', password: '' });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -14,7 +14,7 @@ const AddUserModal = ({ isOpen, onRequestClose, onAddUser }) => {
 
   const handleSubmit = () => {
     onAddUser(newUser);
-    setNewUser({ name: '', email: '', role: '' });
+    setNewUser({ username: '', email: '', password: '' });
   };
 
   return (
@@ -47,14 +47,14 @@ const AddUserModal = ({ isOpen, onRequestClose, onAddUser }) => {
       }}
       contentLabel="Add User Modal"
     >
-      <h2 className="text-2xl text-center font-semibold mb-4 text-gray-800">Add New User</h2>
+      <h2 className="text-2xl text-center font-semibold mb-4 text-gray-800">Tambah User</h2>
       <form className="space-y-3">
         <input
           type="text"
-          name="name"
-          value={newUser.name}
+          name="username"
+          value={newUser.username}
           onChange={handleInputChange}
-          placeholder="Name"
+          placeholder="Username"
           className="border border-gray-300 p-2 rounded w-full shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
         <input
@@ -66,25 +66,25 @@ const AddUserModal = ({ isOpen, onRequestClose, onAddUser }) => {
           className="border border-gray-300 p-2 rounded w-full shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
         <input
-          type="text"
-          name="role"
-          value={newUser.role}
+          type="password"
+          name="password"
+          value={newUser.password}
           onChange={handleInputChange}
-          placeholder="Role"
+          placeholder="Password"
           className="border border-gray-300 p-2 rounded w-full shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
         <div className="flex justify-center space-x-2 mt-4">
           <button
             type="button"
             onClick={handleSubmit}
-            className="bg-violet-400 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-violet-400 text-white py-2 px-4 rounded hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Add User
           </button>
           <button
             type="button"
             onClick={onRequestClose}
-            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             Close
           </button>

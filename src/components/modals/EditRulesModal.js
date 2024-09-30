@@ -145,7 +145,7 @@ const UpdateRuleModal = ({ isOpen, onRequestClose, rule, onUpdateRule, condition
           onClick={handleSubmit}
           className="p-2 bg-blue-500 text-white rounded mr-2"
         >
-          Update Rule
+          Update
         </button>
         <button
           onClick={onRequestClose}

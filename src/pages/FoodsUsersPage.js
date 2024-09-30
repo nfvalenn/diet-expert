@@ -1,8 +1,8 @@
-// src/pages/RecommendationsPage.js
+// src/pages/FoodRecommendationPage.js
 
 import React from 'react';
 
-const RecommendationsPage = ({ recommendations }) => {
+const FoodRecommendationPage = ({ recommendations }) => {
   return (
     <div>
       <h3 className="text-lg font-bold mb-4">Rekomendasi Makanan</h3>
@@ -21,4 +21,4 @@ const RecommendationsPage = ({ recommendations }) => {
   );
 };
 
-export default RecommendationsPage;
+export default FoodRecommendationPage;

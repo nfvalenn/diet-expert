@@ -24,11 +24,17 @@ const AddResultModal = ({ isOpen, onRequestClose, onAddResult }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="Add Result">
-      <h2 className="text-2xl font-bold mb-4">Add New Result</h2>
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      contentLabel="Add Result"
+      className="modal-content w-full max-w-md p-6 bg-white rounded-lg shadow-lg"
+      overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+    >
+      <h2 className="text-2xl font-bold mb-4">Tambah Result</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-gray-700">Code</label>
+          <label className="block text-gray-700">Kode</label>
           <input
             type="text"
             value={code}
@@ -37,7 +43,7 @@ const AddResultModal = ({ isOpen, onRequestClose, onAddResult }) => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Category</label>
+          <label className="block text-gray-700">Kategori</label>
           <input
             type="text"
             value={category}
@@ -46,7 +52,7 @@ const AddResultModal = ({ isOpen, onRequestClose, onAddResult }) => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Calorie Range</label>
+          <label className="block text-gray-700">Kalori Range</label>
           <input
             type="text"
             value={calorieRange}
@@ -55,14 +61,28 @@ const AddResultModal = ({ isOpen, onRequestClose, onAddResult }) => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Description</label>
+          <label className="block text-gray-700">Deskripsi</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">Add Result</button>
+        <div className="flex justify-center space-x-4 mt-6">
+          <button
+            type="submit"
+            className="w-32 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Tambah Result
+          </button>
+          <button
+            type="button"
+            onClick={onRequestClose}
+            className="w-32 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors"
+          >
+            Batal
+          </button>
+        </div>
       </form>
     </Modal>
   );

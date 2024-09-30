@@ -26,10 +26,10 @@ const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
       overlayClassName="fixed inset-0 bg-black bg-opacity-50"
     >
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
-        <h2 className="text-xl font-bold mb-4">Add New HbA1c Condition</h2>
+        <h2 className="text-xl font-bold mb-4">Tambah HbA1c</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Code</label>
+            <label className="block text-sm font-medium mb-1">Kode</label>
             <input
               type="text"
               value={condition_code}
@@ -39,7 +39,7 @@ const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="block text-sm font-medium mb-1">Kategori</label>
             <input
               type="text"
               value={category}
@@ -49,7 +49,7 @@ const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <label className="block text-sm font-medium mb-1">Deskripsi</label>
             <input
               type="text"
               value={description}
@@ -68,19 +68,19 @@ const AddHba1cModal = ({ isOpen, onRequestClose, onAddCondition }) => {
               required
             />
           </div>
-          <div className="flex justify-center">
-          <button
+          <div className="flex justify-center gap-2">
+            <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded mr-3"
+              className="bg-blue-500 text-white p-2 rounded w-32"
             >
-              Add Condition
+              Tambah
             </button>
             <button
               type="button"
               onClick={onRequestClose}
-              className="bg-gray-500 text-white p-2 rounded mr-2"
+              className="bg-gray-500 text-white p-2 rounded w-32"
             >
-              Cancel
+              Batal
             </button>
           </div>
         </form>

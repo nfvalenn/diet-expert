@@ -1,30 +1,64 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminLayout from '../components/modals/AdminLayout';
 import StatsCard from '../components/modals/StatsCard';
-import DataTable from '../components/modals/DataTable';
-import { FaUsers, FaChartLine, FaClipboardList } from 'react-icons/fa';
+import { FaUsers, FaClipboardList, FaCheckCircle, FaTimesCircle, FaChartLine, FaClipboardCheck, FaFileAlt, FaUserMd } from 'react-icons/fa';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-const data = [
-  { Name: 'John Doe', Email: 'john@example.com', Role: 'User' },
-  { Name: 'Jane Smith', Email: 'jane@example.com', Role: 'Admin' },
-  // Additional data
-];
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const AdminDashboard = () => {
+const AdminDashboardPage = () => {
+  const [userCount, setUserCount] = useState(0);
+  const [consultationCount, setConsultationCount] = useState(0);
+  const [completedConsultations, setCompletedConsultations] = useState(0);
+  const [pendingConsultations, setPendingConsultations] = useState(0);
+  const [canceledConsultations, setCanceledConsultations] = useState(0);
+  const [totalDoctors, setTotalDoctors] = useState(0);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const [consultationData, setConsultationData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Total Consultations',
+        data: [],
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      try {
+        const userResponse = await fetch('http://localhost:5001/api/users', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUserCount(userData.count);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <AdminLayout>
-      <h2 className="text-3xl font-bold mb-6 text-gray-700">Admin Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <StatsCard title="Total Users" value="100" icon={<FaUsers />} />
-        <StatsCard title="Daily Visits" value="1,200" icon={<FaChartLine />} />
-        <StatsCard title="Total Consultations" value="500" icon={<FaClipboardList />} />
-      </div>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl font-semibold mb-4 text-gray-700">User Data</h3>
-        <DataTable data={data} />
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
+        <StatsCard title="Total Users" value={userCount} icon={<FaUsers />} />
+        <StatsCard title="Total Aturan" value="50" icon={<FaCheckCircle />} />
+        <StatsCard title="Total Kondisi" value="5" icon={<FaTimesCircle />} />
       </div>
     </AdminLayout>
   );
 };
 
-export default AdminDashboard;
+export default AdminDashboardPage;

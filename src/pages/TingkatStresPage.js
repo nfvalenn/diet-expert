@@ -55,9 +55,9 @@ const AdminStressLevelPage = () => {
   };
 
   const columns = [
-    { Header: 'Code', accessor: 'condition_code' },
-    { Header: 'Category', accessor: 'category' },
-    { Header: 'Description', accessor: 'description' },
+    { Header: 'Kode', accessor: 'condition_code' },
+    { Header: 'Kategori', accessor: 'category' },
+    { Header: 'Deskripsi', accessor: 'description' },
     { Header: 'CF', accessor: 'cf' },
     {
       Header: 'Actions',
@@ -92,7 +92,7 @@ const AdminStressLevelPage = () => {
             onClick={() => setIsAddModalOpen(true)}
             className="bg-blue-500 text-white p-2 rounded flex items-center"
           >
-            <FaPlus className="mr-2" /> Add Tingkat Stress
+            <FaPlus className="mr-2" /> Tambah Tingkat Stress
           </button>
         </div>
         <DataTable columns={columns} data={conditions} />

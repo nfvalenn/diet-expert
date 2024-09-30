@@ -96,7 +96,7 @@ const AdminUsers = () => {
             onClick={() => setModalIsOpen(true)} 
             className="bg-blue-500 text-white py-2 px-8 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Add User
+            Tambah User
           </button>
         </div>
         <DataTable 

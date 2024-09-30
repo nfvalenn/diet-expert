@@ -1,76 +1,102 @@
-// src/pages/Results.js
-import React, { useEffect, useState } from 'react';
-import AdminLayout from '../components/modals/AdminLayout';
-import DataTable from '../components/modals/DataTable';
+import React, { useState, useEffect } from 'react';
 import AddResultModal from '../components/modals/AddResultModal';
-//import EditResultModal from '../components/modals/edi'; // Add this import if needed for editing results
-import api from '../services/api'; // Correct instance of Axios
-import { FaClipboardList, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import EditResultModal from '../components/modals/EditResultModal';
+import DataTable from '../components/modals/DataTable';
+import AdminLayout from '../components/modals/AdminLayout';
+import api from '../services/api';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 
 const Results = () => {
-  const [data, setData] = useState([]);
-  const [selectedConsultation, setSelectedConsultation] = useState(null);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [results, setResults] = useState([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedResult, setSelectedResult] = useState(null); // for editing
+
+  // Fetch data from the API
+  const fetchResults = async () => {
+    try {
+      const { data } = await api.get('/results');
+      setResults(data);
+    } catch (error) {
+      console.error('Error fetching results:', error);
+    }
+  };
 
   useEffect(() => {
-    api.get('/results')
-      .then(response => setData(response.data))
-      .catch(error => console.error('Error fetching consultation data:', error));
+    fetchResults();
   }, []);
 
+  // Add a new result
   const handleAddResult = async (newResult) => {
     try {
-      const response = await api.post('/results', newResult);
-      setData([...data, response.data]);
-      setModalIsOpen(false);
+      await api.post('/results', newResult);
+      setIsAddModalOpen(false);
+      fetchResults(); // Refresh data after adding
     } catch (error) {
-      console.error('Error adding consultation result:', error);
+      console.error('Error adding result:', error);
     }
   };
 
+  // Edit an existing result
   const handleEditResult = async (updatedResult) => {
     try {
-      const response = await api.put(`/results/${updatedResult.id}`, updatedResult);
-      setData(data.map(result => (result.id === response.data.id ? response.data : result)));
+      await api.put(`/results/${updatedResult.id}`, updatedResult);
       setIsEditModalOpen(false);
+      setSelectedResult(null);
+      fetchResults(); // Refresh data after editing
     } catch (error) {
-      console.error('Error updating consultation result:', error);
+      console.error('Error editing result:', error);
     }
   };
 
-  const handleDeleteResult = async (id) => {
-    try {
-      await api.delete(`/results/${id}`);
-      setData(data.filter(result => result.id !== id));
-    } catch (error) {
-      console.error('Error deleting consultation result:', error);
-    }
-  };
-
-  const handleSelectConsultation = (consultation) => {
-    setSelectedConsultation(consultation);
+  // Open edit modal with selected result
+  const handleOpenEditModal = (result) => {
+    setSelectedResult(result);
     setIsEditModalOpen(true);
   };
 
+  // Delete a result
+  const handleDeleteResult = async (id) => {
+    try {
+      await api.delete(`/results/${id}`);
+      fetchResults(); // Refresh data after deleting
+    } catch (error) {
+      console.error('Error deleting result:', error);
+    }
+  };
+
+  // Define the columns for the data table
   const columns = [
-    { Header: 'Code', accessor: 'code' },
-    { Header: 'Category', accessor: 'category' },
-    { Header: 'Calorie Range', accessor: 'calorie_range' },
-    { Header: 'Description', accessor: 'description' },
     {
-      Header: 'Actions',
+      Header: () => <div className="text-center">Kode</div>,
+      accessor: 'code',
+    },
+    {
+      Header: () => <div className="text-center">Kategori</div>,
+      accessor: 'category',
+    },
+    {
+      Header: () => <div className="text-center">Kalori Range</div>,
+      accessor: 'calorie_range',
+    },
+    {
+      Header: () => <div className="text-center">Deskripsi</div>,
+      accessor: 'description',
+    },
+    {
+      Header: () => <div className="text-center">Actions</div>,
+      accessor: 'actions',
       Cell: ({ row }) => (
-        <div className="flex space-x-2">
+        <div className="flex justify-center space-x-2">
           <button
-            onClick={() => handleSelectConsultation(row.original)}
-            className="text-blue-500"
+            onClick={() => handleOpenEditModal(row.original)}
+            style={{ color: 'blue' }}
           >
             <FaEdit />
           </button>
           <button
             onClick={() => handleDeleteResult(row.original.id)}
-            className="text-red-500"
+            style={{ color: 'red' }}
           >
             <FaTrash />
           </button>
@@ -82,51 +108,37 @@ const Results = () => {
   return (
     <AdminLayout>
       <div className="bg-white p-6 rounded-lg shadow-lg">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-700">Data Kalori</h1>
-          <button 
-            onClick={() => setModalIsOpen(true)} 
-            className="bg-blue-500 text-white p-2 rounded flex items-center"
+        <div className="flex items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-700">Result</h2>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-500 text-white p-2 rounded flex items-center ml-auto"
           >
-            <FaPlus className="mr-2" /> Add Result
+            <FaPlus className="mr-2" /> Tambah Result
           </button>
         </div>
-        <DataTable data={data} columns={columns} />
+        <DataTable data={results} columns={columns} />
       </div>
-      {selectedConsultation && (
-        <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Consultation Summary</h2>
-          <div>
-            <p><strong>Code:</strong> {selectedConsultation.code}</p>
-            <p><strong>Category:</strong> {selectedConsultation.category}</p>
-            <p><strong>Calorie Range:</strong> {selectedConsultation.calorie_range}</p>
-            <p><strong>Description:</strong> {selectedConsultation.description}</p>
-            {selectedConsultation.dietPlan && selectedConsultation.dietPlan.length > 0 && (
-              <>
-                <h3 className="text-lg font-semibold mt-4 text-gray-700">Recommended Diet Plan</h3>
-                <ul className="list-disc ml-5">
-                  {selectedConsultation.dietPlan.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
-        </div>
+
+      {isAddModalOpen && (
+        <AddResultModal
+          isOpen={isAddModalOpen}
+          onRequestClose={() => setIsAddModalOpen(false)}
+          onAddResult={handleAddResult}
+        />
       )}
-      <AddResultModal
-        isOpen={modalIsOpen}
-        onRequestClose={() => setModalIsOpen(false)}
-        onAddResult={handleAddResult}
-      />
-      {/* {selectedConsultation && (
+
+      {isEditModalOpen && selectedResult && (
         <EditResultModal
           isOpen={isEditModalOpen}
-          onRequestClose={() => setIsEditModalOpen(false)}
-          result={selectedConsultation}
+          onRequestClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedResult(null);
+          }}
+          result={selectedResult}
           onEditResult={handleEditResult}
         />
-      )} */}
+      )}
     </AdminLayout>
   );
 };

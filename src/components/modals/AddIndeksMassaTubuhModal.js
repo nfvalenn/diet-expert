@@ -99,7 +99,7 @@ const AddIndeksMassaTubuhModal = ({ isOpen, onRequestClose, onAddIndeksMassaTubu
       style={modalStyles}
     >
       <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '16px' }}>
-        Add Indeks Massa Tubuh
+        Tambah Indeks Massa Tubuh
       </h2>
       <form onSubmit={handleSubmit} style={formStyles}>
         <label style={{ marginBottom: '8px', color: '#333' }}>Kode</label>
@@ -135,8 +135,8 @@ const AddIndeksMassaTubuhModal = ({ isOpen, onRequestClose, onAddIndeksMassaTubu
           placeholder="CF"
         />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <button type="submit" style={primaryButtonStyles}>Add</button>
-          <button type="button" onClick={onRequestClose} style={secondaryButtonStyles}>Close</button>
+          <button type="submit" style={primaryButtonStyles}>Tambah</button>
+          <button type="button" onClick={onRequestClose} style={secondaryButtonStyles}>Batal</button>
         </div>
       </form>
     </Modal>

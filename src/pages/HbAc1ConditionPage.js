@@ -60,9 +60,9 @@ const AdminHba1cPage = () => {
   };
 
   const columns = [
-    { Header: 'Code', accessor: 'condition_code' },
-    { Header: 'Category', accessor: 'category' },
-    { Header: 'Description', accessor: 'description' },
+    { Header: 'Kode', accessor: 'condition_code' },
+    { Header: 'Kategori', accessor: 'category' },
+    { Header: 'Deskripsi', accessor: 'description' },
     { Header: 'CF', accessor: 'cf' },
     {
       Header: 'Actions',
@@ -92,12 +92,12 @@ const AdminHba1cPage = () => {
     <AdminLayout>
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-700">HbA1c Conditions</h1>
+          <h1 className="text-3xl font-bold text-gray-700">HbA1c</h1>
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="bg-blue-500 text-white p-2 rounded flex items-center"
           >
-            <FaPlus className="mr-2" /> Add New
+            <FaPlus className="mr-2" />Tambah HbA1c
           </button>
         </div>
         <DataTable columns={columns} data={conditions} />
